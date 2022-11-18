@@ -1,24 +1,52 @@
+import { GoogleAuthProvider } from "firebase/auth";
 import React, { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../Context/AuthProvider";
 
 const Login = () => {
-  const {signIn} = useContext(AuthContext);
-  const {register,formState: { errors },handleSubmit} = useForm();
-  const [loginError,setLoginError] = useState('');
+  const { signIn, loginIWithpopUp, resetPassword } = useContext(AuthContext);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const from = location.state?.from?.pathname || "/";
+  const googleAuthProvider = new GoogleAuthProvider();
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+  } = useForm();
+  const [loginError, setLoginError] = useState("");
   const handelLogin = (data) => {
     console.log(data);
-    signIn(data.email,data.password)
-    .then(result =>{
-      const user = result.user;
-  console.log(user);
-    })
-    .catch(e => {console.error(e)
-    setLoginError(e.message)
-    })
+    signIn(data.email, data.password)
+      .then((result) => {
+        const user = result.user;
+        console.log(user);
+        navigate(from, { replace: true });
+      })
+      .catch((e) => {
+        console.error(e);
+        setLoginError(e.message);
+      });
+  };
+  //log in with google
+  const handleLoginWithGoogle = () => {
+    loginIWithpopUp(googleAuthProvider)
+      .then((result) => {
+        const user = result.user;
+        navigate(from, { replace: true });
+      })
+      .catch((e) => console.error(e));
   };
 
+  const handlePassReset = (data) => {
+    console.log(data);
+    resetPassword(data.email)
+      .then(() => {
+        console.log('email sent')
+      })
+      .catch((e) => console.log(e.message));
+  };
   return (
     <div className="h-[800px]  flex justify-center items-center">
       <div className="w-96 p-7">
@@ -60,7 +88,9 @@ const Login = () => {
               </p>
             )}
             <label className="label">
-              <span className="label-text">Forget Password?</span>
+              <button onClick={handleSubmit(handlePassReset)} className="label-text">
+                Forget Password?
+              </button>
             </label>
           </div>
           <input
@@ -79,7 +109,10 @@ const Login = () => {
           </Link>
         </p>
         <div className="divider">Or</div>
-        <button className="btn btn-outline w-full ">
+        <button
+          onClick={handleLoginWithGoogle}
+          className="btn btn-outline w-full "
+        >
           Continue With Google
         </button>
       </div>
