@@ -9,8 +9,8 @@ const AuthProvider = ({children}) => {
     const [user,setUser] = useState(null);
     const [loading,setLoading] = useState(true);
     useEffect(()=>{
-        const unSubscribe = onAuthStateChanged(auth,CurrentUser =>{
-setUser(CurrentUser);
+        const unSubscribe = onAuthStateChanged(auth,currentUser =>{
+setUser(currentUser);
 setLoading(false)
         })
         return ()=> unSubscribe();
@@ -28,7 +28,7 @@ setLoading(false)
     //update user
     const updateUser = (userInfo) =>{
         setLoading(true)
-        return updateProfile(user,userInfo);
+        return updateProfile(auth.currentUser,userInfo);
     }
     //sign in with pop up
     const loginIWithpopUp = (provider) =>{

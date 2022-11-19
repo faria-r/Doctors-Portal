@@ -1,8 +1,12 @@
 import { format } from "date-fns";
-import React from "react";
+import React, { useContext } from "react";
+import toast from "react-hot-toast";
+import { AuthContext } from "../../../Context/AuthProvider";
 
-const BookingModal = ({ treatments, selectedDate,setTreatments }) => {
-  const { name, slots } = treatments; //treatment is just name of appointment options.
+const BookingModal = ({ treatments, selectedDate,setTreatments,refetch }) => {
+  const { name: treatmentName, slots } = treatments; //treatment is just name of appointment options.
+
+  const {user} = useContext(AuthContext)
   const date = format(selectedDate, "PP");
 
   const handleBooking = event =>{
@@ -14,15 +18,36 @@ const BookingModal = ({ treatments, selectedDate,setTreatments }) => {
     const slot = form.slot.value;
 
     const booking = {
-selectedDate:date,
-treatment:name,
+appointmentDate:date,
+treatment:treatmentName,
 patient:name,
 slot,
 email,
 phone,
-    }//todo: send data to the server and once the data is saved then close the modal and then set a toast
+    }
+    //todo: send data to the server and once the data is saved then close the modal and then set a toast
     console.log(booking);
-    setTreatments(null)
+    fetch('http://localhost:5000/bookings',{
+      method:'POST',
+      headers:{
+        'content-type':'application/json'
+      },
+      body:JSON.stringify(booking)
+    })
+    .then(res => res.json())
+    .then(data => {
+      console.log(data)
+      if(data.acknowledged){
+        setTreatments(null);
+        toast.success('Booking Confirmed');
+        refetch();
+      }
+      else{
+        toast.error(data.message)
+      }
+      
+    })
+  
 
   }
   return (
@@ -36,7 +61,7 @@ phone,
           >
             ✕
           </label>
-          <h3 className="text-lg font-bold">{name}</h3>
+          <h3 className="text-lg font-bold">{treatmentName}</h3>
           <form onSubmit={handleBooking} className="grid grid-cols-1 gap-3 mt-6">
             <input
               type="text"
@@ -53,13 +78,17 @@ phone,
               type="text"
               placeholder="Your Name"
               name='name'
+              defaultValue={user?.displayName}
+              disabled
               className="input input-bordered w-full "
             />
             <input
               type="email"
               placeholder="Email Address"
               name="email"
-              required
+              defaultValue={user?.email}
+              required 
+              readOnly
               className="input input-bordered w-full "
             />
             <input

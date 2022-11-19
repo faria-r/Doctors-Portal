@@ -1,14 +1,15 @@
 import React, { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../Context/AuthProvider";
 
 
 const SignUp = () => {
     const {register,  formState:{errors}, handleSubmit}= useForm();
 const {createUser,updateUser} = useContext(AuthContext);
-const [signUpError,setSignUpError] = useState('')
+const [signUpError,setSignUpError] = useState('');
+const navigate = useNavigate();
     const handleSignUp = data =>{
         console.log(data);
         setSignUpError('')
@@ -20,7 +21,9 @@ const [signUpError,setSignUpError] = useState('')
                 displayName:data.name,
             }
             updateUser(userInfo)
-            .then(()=>{})
+            .then(()=>{
+              navigate('/')
+            })
             .catch(e => console.log(e))
         })
         .catch(e => {
@@ -58,7 +61,7 @@ const [signUpError,setSignUpError] = useState('')
             <input
               type="password" {...register('password',{required:'Must Provide Password',
             minLength:{value:6,message:'password must be six character long'},
-            pattern:{value:/^(?=(.*[a-z]){3,})(?=(.*[A-Z]){2,})(?=(.*[0-9]){2,})(?=(.*[!@#$%^&*()\-__+.]){1,}).{8,}$/,message:'password must be strong'}
+            pattern:{value:/^(?=(.*[a-z]){1,})(?=(.*[A-Z]){1,})(?=(.*[!@#$%^&*()\-__+.]){1,}).{6,}$/,message:'password must be strong'}
             })}
               className="input input-bordered w-full max-w-xs"
             />
