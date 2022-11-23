@@ -28,7 +28,7 @@ price
     }
     //todo: send data to the server and once the data is saved then close the modal and then set a toast
     console.log(booking);
-    fetch('http://localhost:5000/bookings',{
+    fetch('https://y-faria-r.vercel.app/bookings',{
       method:'POST',
       headers:{
         'content-type':'application/json'

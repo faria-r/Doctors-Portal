@@ -19,7 +19,7 @@ const AddDoctor = () => {
   const {data: specialities, isLoading} = useQuery({
   queryKey:['/speciality'],
   queryFn: async ()=>{
-    const res = await fetch('http://localhost:5000/appointmentSpeciality')
+    const res = await fetch('https://y-faria-r.vercel.app/appointmentSpeciality')
     const data = await res.json();
     return data;
   }
@@ -45,7 +45,7 @@ const doctor = {
     image:imgData.data.url
 }
 //sava doctors data to mongo db
-fetch('http://localhost:5000/doctors',{
+fetch('https://y-faria-r.vercel.app/doctors',{
   method:"POST",
   headers:{
     'content-type':'application/json',
