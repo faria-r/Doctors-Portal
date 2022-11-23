@@ -3,13 +3,19 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../Context/AuthProvider";
+import useToken from "../../Hooks/useToken";
 
 
 const SignUp = () => {
-    const {register,  formState:{errors}, handleSubmit}= useForm();
+const {register,  formState:{errors}, handleSubmit}= useForm();
 const {createUser,updateUser} = useContext(AuthContext);
 const [signUpError,setSignUpError] = useState('');
+const [createdUserEmail,setCreatedUserEmail] = useState('')
+const [token,setToken] = useToken(createdUserEmail);
 const navigate = useNavigate();
+if(token){
+  navigate('/')
+}
     const handleSignUp = data =>{
         console.log(data);
         setSignUpError('')
@@ -22,7 +28,9 @@ const navigate = useNavigate();
             }
             updateUser(userInfo)
             .then(()=>{
-              navigate('/')
+              saveUser(data.name,data.email);
+              console.log(data.name,data.email)
+             
             })
             .catch(e => console.log(e))
         })
@@ -31,6 +39,27 @@ const navigate = useNavigate();
             setSignUpError(e.message)
         })
     }
+
+   
+
+    const saveUser = (name,email)=>{
+      const user = {name,email};
+      fetch('http://localhost:5000/users',{
+        method:'POST',
+        headers:{
+          'content-type':'application/json'
+        },
+        body:JSON.stringify(user)
+      })
+      .then(res => res.json())
+      .then(data => {
+        console.log(data,'user created');
+     setCreatedUserEmail(email)
+       
+      })
+    }
+
+  
   return (
     <div className="h-[800px]  flex justify-center items-center">
       <div className="w-96 p-7">
@@ -61,8 +90,9 @@ const navigate = useNavigate();
             <input
               type="password" {...register('password',{required:'Must Provide Password',
             minLength:{value:6,message:'password must be six character long'},
-            pattern:{value:/^(?=(.*[a-z]){1,})(?=(.*[A-Z]){1,})(?=(.*[!@#$%^&*()\-__+.]){1,}).{6,}$/,message:'password must be strong'}
+            pattern:{value:/^(?=(.*[a-z]){1,}).{6,}$/,message:'password must be strong'}
             })}
+            // (?=(.*[!@#$%^&*()\-__+.]){1,})   (?=(.*[A-Z]){1,})
               className="input input-bordered w-full max-w-xs"
             />
             {
@@ -71,7 +101,7 @@ const navigate = useNavigate();
           </div>
           <input
             className="btn btn-accent w-full text-white mb-4"
-            value="SingUP"
+            value="SignUP"
             type="submit"
           />
           {

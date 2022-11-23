@@ -1,8 +1,10 @@
 import { GoogleAuthProvider } from "firebase/auth";
 import React, { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../Context/AuthProvider";
+import useToken from "../../Hooks/useToken";
 
 const Login = () => {
   const { signIn, loginIWithpopUp, resetPassword } = useContext(AuthContext);
@@ -16,13 +18,19 @@ const Login = () => {
     handleSubmit,
   } = useForm();
   const [loginError, setLoginError] = useState("");
+  const [loginUserEmail,setLoginUserEmail]=useState('');
+  const [token] = useToken(loginUserEmail);
+  if(token){
+    navigate(from, { replace: true });
+  }
   const handelLogin = (data) => {
     console.log(data);
     signIn(data.email, data.password)
       .then((result) => {
         const user = result.user;
         console.log(user);
-        navigate(from, { replace: true });
+        setLoginUserEmail(data.email)
+        
       })
       .catch((e) => {
         console.error(e);
@@ -43,7 +51,7 @@ const Login = () => {
     console.log(data);
     resetPassword(data.email)
       .then(() => {
-        console.log('email sent')
+        toast('please check Your Email and reset Password')
       })
       .catch((e) => console.log(e.message));
   };
